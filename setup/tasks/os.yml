@@ -1,0 +1,48 @@
+---
+- name: Set timezone to America/Sao_Paulo
+  community.general.timezone:
+    name: America/Sao_Paulo
+
+- name: Set the hostname
+  hostname:
+    name: "{{ hostname }}"
+
+###
+### K8s e K3s requirements
+###
+- name: Install vxlan support
+  apt: 
+    name: linux-modules-extra-raspi
+    state: present
+
+- name: Disable swap
+  replace:
+    path: /etc/fstab
+    regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
+    replace: '# \1'
+  notify: os_reboot
+
+- name: Enable IPv6 forwarding
+  sysctl:
+    name: net.ipv6.conf.all.forwarding
+    value: "1"
+    state: present
+    reload: true
+
+- name: Enable IPv4 forwarding
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: "1"
+    state: present
+    reload: true
+
+- name: Enable cgroup params on boot
+  replace:
+    path: /boot/firmware/cmdline.txt
+    regexp: '^([\w](?!.*\b{{ item }}\b).*)$'
+    replace: '\1 {{ item }}'
+  with_items:
+    - "cgroup_enable=cpuset"
+    - "cgroup_memory=1"
+    - "cgroup_enable=memory"  
+  notify: os_reboot

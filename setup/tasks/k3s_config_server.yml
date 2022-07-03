@@ -1,0 +1,73 @@
+---
+- name: Copy K3s service file
+  template:
+    src: "k3s.server.service.j2"
+    dest: "/etc/systemd/system/k3s.service"
+    owner: root
+    group: root
+    mode: 0644
+  register: k3s_service
+
+- name: Enable and check K3s service
+  systemd:
+    name: k3s
+    daemon_reload: true
+    state: restarted
+    enabled: true
+  when: k3s_service.changed == true
+
+- name: Create directory .kube
+  file:
+    path: ~{{ ansible_user }}/.kube
+    state: directory
+    owner: "{{ ansible_user }}"
+    mode: "u=rwx,g=rx,o="
+
+- name: Create directory .kube on root
+  file:
+    path: /root/.kube
+    state: directory
+    mode: "u=rwx,g=rx,o="
+
+- name: Copy original config file to user home directory for backup
+  copy:
+    src: /etc/rancher/k3s/k3s.yaml
+    dest: ~{{ ansible_user }}/.kube/ansible
+    remote_src: true
+    mode: preserve
+  register: k3s_config
+
+- name: set permission to other users read config server
+  file:
+    path: /etc/rancher/k3s/k3s.yaml
+    mode: '0644'
+
+- name: Configure kubeconfig
+  block:       
+    - name: Copy config file to user home directory
+      copy:
+        src: ~{{ ansible_user }}/.kube/ansible
+        dest: ~{{ ansible_user }}/.kube/config
+        remote_src: true
+        owner: "{{ ansible_user }}"
+        mode: "u=r,g=,o="  
+
+    - name: Copy config file to root directory
+      copy:
+        src: ~{{ ansible_user }}/.kube/ansible
+        dest: /root/.kube/config
+        remote_src: true
+        mode: "u=r,g=,o="  
+
+    - name: Replace https://localhost:6443 by https://server-ip:6443
+      replace:
+        path: ~{{ ansible_user }}/.kube/config
+        regexp: "127.0.0.1"
+        replace: "{{ k3s.server.ip }}"          
+  when: k3s_config.changed == true
+
+- name: Create kubectl symlink
+  file:
+    src: /usr/local/bin/k3s
+    dest: /usr/local/bin/kubectl
+    state: link

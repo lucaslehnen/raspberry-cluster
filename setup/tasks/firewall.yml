@@ -1,0 +1,83 @@
+---
+- name: Deny everything and enable UFW
+  community.general.ufw:
+    state: enabled
+    policy: deny
+
+- name: SSH Access
+  community.general.ufw:    
+    rule: limit
+    port: ssh
+    proto: tcp
+    src: "{{ local_network.cidr }}"
+
+### ----------------------------------------------------
+### K3s 
+### ----------------------------------------------------
+
+- name: Kubernetes API Server port
+  community.general.ufw:    
+    rule: allow
+    port: '6443'
+    proto: tcp
+    src: "{{ local_network.cidr }}"
+    comment: "k8s api"
+
+- name: Flannel VXLAN
+  community.general.ufw:    
+    rule: allow
+    port: '8472'
+    proto: udp
+    src: "{{ local_network.cidr }}"
+    comment: "vxlan flannel"
+
+- name: Flannel Wireguard backend
+  community.general.ufw:    
+    rule: allow
+    port: 51820:51821
+    proto: udp
+    src: "{{ local_network.cidr }}"
+    comment: "flannel wireguard"
+
+- name: Kubelet metrics
+  community.general.ufw:    
+    rule: allow
+    port: 10250
+    proto: tcp
+    src: "{{ local_network.cidr }}"
+    comment: "kubelet metrics"
+
+- name: HA etcd
+  community.general.ufw:    
+    rule: allow
+    port: 2379:2380
+    proto: tcp
+    src: "{{ local_network.cidr }}"
+    comment: "etcd"
+
+### ----------------------------------------------------
+### Apps
+### ----------------------------------------------------
+- name: HTTP
+  community.general.ufw:    
+    rule: allow
+    port: 80
+    proto: tcp
+    src: "{{ local_network.cidr }}"
+    comment: "http"
+
+- name: HTTPS
+  community.general.ufw:    
+    rule: allow
+    port: 443
+    proto: tcp
+    src: "{{ local_network.cidr }}"
+    comment: "Https"
+
+- name: PostgreSQL
+  community.general.ufw:    
+    rule: allow
+    port: 5432
+    proto: tcp
+    src: "{{ local_network.cidr }}"
+    comment: "Postgres"

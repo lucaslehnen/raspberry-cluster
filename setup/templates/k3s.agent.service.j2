@@ -1,0 +1,22 @@
+[Unit]
+Description=K3s agent service 
+Documentation=https://github.com/lucaslehnen/raspberry-cluster
+After=network-online.target
+
+[Service]
+Type=notify
+ExecStartPre=-/sbin/modprobe br_netfilter
+ExecStartPre=-/sbin/modprobe overlay
+ExecStart=/usr/local/bin/k3s agent --server https://{{ k3s.server.ip }}:6443 --token {{ k3s_join_token }} {{ k3s.agent.args | default("") }}
+KillMode=process
+Delegate=yes
+LimitNOFILE=1048576
+LimitNPROC=infinity
+LimitCORE=infinity
+TasksMax=infinity
+TimeoutStartSec=0
+Restart=always
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target

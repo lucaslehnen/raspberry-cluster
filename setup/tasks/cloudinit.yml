@@ -1,0 +1,33 @@
+---
+- name: Check folders
+  stat:
+    path: /etc/cloud/cloud.cfg.d/90_dpkg.cfg
+  register: stats
+
+- name: Disable all services in cloud-init
+  copy:
+    dest: /etc/cloud/cloud.cfg.d/90_dpkg.cfg
+    content: 'datasource_list: [ None ]'
+    mode: 0644
+  register: datasource
+  when: stats.stat.exists
+  notify: dpkg_reconfigure
+
+- name: Running handlers
+  meta: flush_handlers
+
+- name: Purge package
+  apt:
+    purge: true
+    state: absent
+    name: cloud-init
+  notify: os_reboot
+
+- name: Delete folders
+  file:
+    state: absent
+    path: "{{ item }}"
+  with_items:
+    - "/etc/cloud/"
+    - "/var/lib/cloud/"
+  notify: os_reboot

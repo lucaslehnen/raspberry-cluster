@@ -1,0 +1,32 @@
+---
+- name: Connect on server and read node-join token
+  slurp:
+    src: /var/lib/rancher/k3s/server/node-token
+  delegate_to: "{{ k3s.server.ip }}"
+  run_once: true
+  register: join_token
+
+- name: Store join node-token
+  set_fact:
+    k3s_join_token: "{{ join_token.content | b64decode | regex_replace('\n', '') }}"
+  run_once: true
+
+- debug:
+    msg: "Join token copied: {{ k3s_join_token }}"
+
+- name: Copy K3s service file
+  template:
+    src: "k3s.agent.service.j2"
+    dest: "/etc/systemd/system/k3s.service"
+    owner: root
+    group: root
+    mode: 0755
+  register: k3s_service
+
+- name: Enable and check K3s service
+  systemd:
+    name: k3s
+    daemon_reload: true
+    state: restarted
+    enabled: true
+  # when: k3s_service.changed == true
