@@ -29,4 +29,4 @@
     daemon_reload: true
     state: restarted
     enabled: true
-  # when: k3s_service.changed == true
+  when: k3s_service.changed == true

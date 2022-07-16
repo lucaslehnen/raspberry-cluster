@@ -1,6 +1,6 @@
 # Cluster Kubernetes na Raspberry
 
-![Ansible](https://img.shields.io/badge/Ansible-%3E%3D2.13.1-red?logo=ansible&logoColor=white)
+![Ansible](https://img.shields.io/badge/Ansible-%3E%3D6.1.0-red?logo=ansible&logoColor=white)
 
 Esse repositório tem a automatização do meu cluster de Raspberrys, com todo o processo necessário para reinstala-lo do zero.
 
@@ -138,6 +138,20 @@ Visão geral dos recursos:
     agent:
       args: ""            # Argumentos extra do agente https://rancher.com/docs/k3s/latest/en/installation/install-options/agent-config/  
   ```
+- Configurar o ambiente virtual e instalar o Ansible:  
+  
+  Criar e ativar o ambiente virtual:
+  ```shell
+  cd setup
+  python3 -m venv .venv
+  source .venv/bin/activate
+  pip install --upgrade pip
+  ```
+
+  Instalar o Ansible:
+  ```shell
+  pip install -r requirements.txt
+  ```    
 
 - Para rodar o playbook Ansible:
 
