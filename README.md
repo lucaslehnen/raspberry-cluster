@@ -76,14 +76,46 @@ ssh-copy-id -i ~/.ssh/raspberrys.pub ubuntu@192.168.0.21
 
 </details>
 
+<details>
+<summary>Configurando dispositivos USB</summary>
+
+### Configurando dispositivos USB
+
+São dois: um HD externo de 1 TB e um SSD de 128 GB.
+Rodei os comandos abaixo para prepará-los, limpando as partições e criando uma nova. 
+
+Para isso, usei o fdisk mesmo:
+```shell
+fdisk /dev/sda
+```
+
+Guia rápido:
+`p` Mostra a tabela de partições atual;
+`d` Para deletar a partição 
+`g` Modifica a tabela de partições para GPT
+`n` Para criar nova partição
+`w` Para gravar as alterações
+
+Alterei o formato da tabela de partições para GPT.
+Criei as três partições como `ext4`. No HDD, ao definir o último setor, usei `+465G` para aproximar as metades.
+
+Para formatar, fiz o processo fora das raspberrys, pois notei que o HD exigia mais poder da USB do que a raspberry podia aguentar.
+
+Formatei elas com o ext4:
+```shell
+sudo mkfs -t ext4 /dev/{{dev}}
+```
+
+</details>
+
 ## Overview
 
 Visão geral dos recursos: 
 
 - 3 Raspberrys
   - k3s-01: 4GB RAM, 32 GB MicroSD
-    - HDD 1 TB via USB: /dev/sda
-    - SSD 128 via USB: /dev/sdb 
+    - HDD 1 TB via USB
+    - SSD 128 via USB
     - NFS Server
     - K3s Server
   - k3s-02 e k3s-03: 2GB RAM,32 GB MicroSD
@@ -114,5 +146,12 @@ Visão geral dos recursos:
   ansible-playbook -i hosts.yml main.yml --extra-vars "@./variables.yml"
   ```
 
-
 - Com isso o ambiente já deve ter sido configurado;
+
+## Configurando métricas e IDE
+
+Em um primeiro momento, eu já coloco a stack de monitoramento via Lens mesmo.Posteriormente, se trouxer alguma vantagem, vou atrás de um Helm chart para isso.
+
+Primeiramente, adicionar o cluster na IDE, colocando o conteúdo de `~/.kube/config` no Lens. 
+
+Após, habilito as stacks de monitoramento do Prometheus e do Node Exporter em `Settings > Lens Metrics`. O kube-state-metrics o K3s já tem.

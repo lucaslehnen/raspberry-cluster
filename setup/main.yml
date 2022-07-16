@@ -1,29 +1,30 @@
-- hosts: raspberrys
-  user: ubuntu
-  become: true
-  gather_facts: true
-  handlers:  
-    - name: Reboot
-      reboot:
-        msg: "Reboot initiated by Ansible after cloud-init changed"
-      listen: os_reboot
-    - name: Apply the new configuration
-      command: dpkg-reconfigure -f noninteractive cloud-init
-      notify: os_reboot
-      listen: dpkg_reconfigure
-  tasks:    
-    # - include_tasks: tasks/os.yml
-    - include_tasks: tasks/firewall.yml
-    # - include_tasks: tasks/cloudinit.yml
-    # - include_tasks: tasks/k3s_download_binary.yml
-
-# - hosts: fourGb
+# - hosts: raspberrys
 #   user: ubuntu
 #   become: true
-#   gather_facts: false
-#   handlers:
-#   tasks:
-#     - include_tasks: tasks/k3s_config_server.yml  
+#   gather_facts: true
+#   handlers:  
+#     - name: Reboot
+#       reboot:
+#         msg: "Reboot initiated by Ansible after cloud-init changed"
+#       listen: os_reboot
+#     - name: Apply the new configuration
+#       command: dpkg-reconfigure -f noninteractive cloud-init
+#       notify: os_reboot
+#       listen: dpkg_reconfigure
+#   tasks:    
+#     - include_tasks: tasks/os.yml
+#     - include_tasks: tasks/firewall.yml
+#     - include_tasks: tasks/cloudinit.yml
+#     - include_tasks: tasks/k3s_download_binary.yml    
+
+- hosts: fourGb
+  user: ubuntu
+  become: true
+  gather_facts: false
+  handlers:
+  tasks:
+    # - include_tasks: tasks/k3s_config_server.yml  
+    - include_tasks: tasks/nfs_server.yml
 
 # - hosts: twoGb
 #   user: ubuntu

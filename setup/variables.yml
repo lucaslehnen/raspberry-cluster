@@ -5,5 +5,8 @@ k3s:
   server: 
     ip: 192.168.0.21
     args: ""
+    usb_devices:
+      hdd: 
+      ssd:
   agent:
     args: ""

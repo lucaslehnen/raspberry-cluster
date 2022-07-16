@@ -1,0 +1,24 @@
+---
+- name: Install nfs
+  ansible.builtin.apt:
+    name: nfs-kernel-server
+    state: present
+
+- name: Make NFS points 
+  file:
+    path: /srv/nfs4/{{ item }}
+    state: directory
+    mode: '0600'
+  loop:
+    - k8s_hdd
+    - k8s_ssd
+    - temp
+
+# - name: Mount and bind a volume
+#   ansible.posix.mount:
+#     path: /system/new_volume/boot
+#     src: /boot
+#     opts: bind
+#     state: mounted
+#     fstype: none
+
