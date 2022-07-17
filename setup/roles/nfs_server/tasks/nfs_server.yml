@@ -1,0 +1,30 @@
+---
+- name: Install nfs
+  ansible.builtin.apt:
+    name: nfs-kernel-server
+    state: present
+
+- name: export ssd in /etc/exports file
+  ansible.builtin.lineinfile:
+    path: /etc/exports
+    state: present
+    line: "/mnt/k8s_ssd {{ local_network.cidr }}(rw,sync,root_squash)"
+  register: k8s_ssd_export
+
+- name: export general in /etc/exports file
+  ansible.builtin.lineinfile:
+    path: /etc/exports
+    state: present
+    line: "/mnt/general {{ local_network.cidr }}(rw,sync,root_squash)"
+  register: general_export
+
+- name: restart NFS server  
+  ansible.builtin.service:
+    name: nfs-server
+    state: restarted
+    enabled: true
+  when: general_export.changed or k8s_ssd_export.changed
+
+- name: export share
+  ansible.builtin.command: "exportfs -rav"
+  when: general_export.changed or k8s_ssd_export.changed

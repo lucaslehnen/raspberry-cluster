@@ -1,0 +1,7 @@
+---
+- name: NFS Access
+  community.general.ufw:    
+    rule: allow
+    port: nfs # 2049
+    proto: tcp
+    src: "{{ local_network.cidr }}"

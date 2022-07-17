@@ -1,0 +1,43 @@
+---
+#
+# Portas em commum no server e agent
+#
+- name: Kubernetes API Server port
+  community.general.ufw:    
+    rule: allow
+    port: '6443'
+    proto: tcp
+    src: "{{ local_network.cidr }}"
+    comment: "k8s api"
+
+- name: Flannel VXLAN
+  community.general.ufw:    
+    rule: allow
+    port: '8472'
+    proto: udp
+    src: "{{ local_network.cidr }}"
+    comment: "vxlan flannel"
+
+- name: Flannel Wireguard backend
+  community.general.ufw:    
+    rule: allow
+    port: 51820:51821
+    proto: udp
+    src: "{{ local_network.cidr }}"
+    comment: "flannel wireguard"
+
+- name: Kubelet metrics
+  community.general.ufw:    
+    rule: allow
+    port: 10250
+    proto: tcp
+    src: "{{ local_network.cidr }}"
+    comment: "kubelet metrics"
+
+- name: HA etcd
+  community.general.ufw:    
+    rule: allow
+    port: 2379:2380
+    proto: tcp
+    src: "{{ local_network.cidr }}"
+    comment: "etcd"

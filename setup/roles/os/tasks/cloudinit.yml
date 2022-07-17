@@ -10,8 +10,12 @@
     content: 'datasource_list: [ None ]'
     mode: 0644
   register: datasource
-  when: stats.stat.exists
-  notify: dpkg_reconfigure
+  when: stats.stat.exists  
+
+- name: Apply the new configuration
+  command: dpkg-reconfigure -f noninteractive cloud-init
+  notify: os_reboot
+  when: datasource.changed
 
 - name: Running handlers
   meta: flush_handlers
@@ -21,7 +25,7 @@
     purge: true
     state: absent
     name: cloud-init
-  notify: os_reboot
+  notify: os_reboot  
 
 - name: Delete folders
   file:

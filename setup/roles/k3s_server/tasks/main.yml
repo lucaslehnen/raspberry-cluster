@@ -1,0 +1,5 @@
+---
+- include_tasks: os.yml
+- include_tasks: ../../common/k3s_download.yml
+- include_tasks: ../../common/k3s_firewall.yml
+- include_tasks: config.yml

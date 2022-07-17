@@ -81,8 +81,7 @@ ssh-copy-id -i ~/.ssh/raspberrys.pub ubuntu@192.168.0.21
 
 ### Configurando dispositivos USB
 
-São dois: um HD externo de 1 TB e um SSD de 128 GB.
-Rodei os comandos abaixo para prepará-los, limpando as partições e criando uma nova. 
+São dois SSDs de 128 GB. Rodei os comandos abaixo para prepará-los, limpando as partições e criando uma nova. 
 
 Para isso, usei o fdisk mesmo:
 ```shell
@@ -97,14 +96,23 @@ Guia rápido:
 `w` Para gravar as alterações
 
 Alterei o formato da tabela de partições para GPT.
-Criei as três partições como `ext4`. No HDD, ao definir o último setor, usei `+465G` para aproximar as metades.
-
-Para formatar, fiz o processo fora das raspberrys, pois notei que o HD exigia mais poder da USB do que a raspberry podia aguentar.
-
-Formatei elas com o ext4:
+Criei as duas partições como `ext4`. 
 ```shell
 sudo mkfs -t ext4 /dev/{{dev}}
 ```
+
+Após as partições disponíveis, conectei ambos à raspberry de 4GB.
+Foram criadas as seguintes pastas de montagem:
+- /mnt/ssd1
+- /mnt/ssd2
+
+Montei as mesmas pelo UUID. Para descobrir o valor, usei o comando abaixo:
+
+```shell
+ls -l /dev/disk/by-uuid/*
+```
+
+Além destes pontos de montagem, montei binds para o NFS em `/srv/nfs4/k8s_ssd` por exemplo, em todas as raspberrys.
 
 </details>
 
@@ -137,6 +145,9 @@ Visão geral dos recursos:
       args: ""            # Argumentos extra do servidor https://rancher.com/docs/k3s/latest/en/installation/install-options/server-config/      
     agent:
       args: ""            # Argumentos extra do agente https://rancher.com/docs/k3s/latest/en/installation/install-options/agent-config/  
+  usb_devices:            # UUID da partições a serem utilizadas. 
+    general:              # UUID da partição a ser utilizada de forma genérica    
+    k8s_storage:          # UUID da partição do SSD para os volumes Kubernetes
   ```
 - Configurar o ambiente virtual e instalar o Ansible:  
   
@@ -156,8 +167,12 @@ Visão geral dos recursos:
 - Para rodar o playbook Ansible:
 
   ```bash
-  cd setup
-  ansible-playbook -i hosts.yml main.yml --extra-vars "@./variables.yml"
+  ansible-playbook -i setup/hosts.yml setup/main.yml --extra-vars "@./setup/variables.yml"
+  ```
+
+  Pode-se acrescentar o -t para rodar apenas algumas roles: 
+  ```bash
+  ansible-playbook -i setup/hosts.yml setup/main.yml --extra-vars "@./setup/variables.yml" -t k3s
   ```
 
 - Com isso o ambiente já deve ter sido configurado;

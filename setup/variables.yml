@@ -5,8 +5,9 @@ k3s:
   server: 
     ip: 192.168.0.21
     args: ""
-    usb_devices:
-      hdd: 
-      ssd:
   agent:
     args: ""
+usb_devices:
+  general: 1846d2e5-467d-4aa7-906a-06dd76870e9c
+  k8s_storage: ec0c75ba-48db-433a-b3bb-0b06012ab5d3
+nfs:  

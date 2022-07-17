@@ -1,0 +1,4 @@
+---
+- include_tasks: usb_devices.yml
+- include_tasks: nfs_server.yml
+- include_tasks: firewall.yml

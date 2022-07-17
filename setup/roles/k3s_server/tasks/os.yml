@@ -1,15 +1,4 @@
 ---
-- name: Set timezone to America/Sao_Paulo
-  community.general.timezone:
-    name: America/Sao_Paulo
-
-- name: Set the hostname
-  hostname:
-    name: "{{ hostname }}"
-
-###
-### K8s e K3s requirements
-###
 - name: Install vxlan support
   apt: 
     name: linux-modules-extra-raspi

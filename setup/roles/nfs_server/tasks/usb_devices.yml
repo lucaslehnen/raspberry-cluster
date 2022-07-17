@@ -1,0 +1,25 @@
+---
+- name: Make mounting usb directories
+  file:
+    path: /mnt/{{ item }}
+    state: directory
+    mode: '0660'
+    owner: root
+    group: root
+  loop:
+    - k8s_ssd
+    - general
+
+- name: Mount up k8s_ssd by UUID
+  ansible.posix.mount:
+    path: /mnt/k8s_ssd
+    src: "UUID={{ usb_devices.k8s_storage }}"
+    fstype: ext4
+    state: mounted
+
+- name: Mount up general by UUID
+  ansible.posix.mount:
+    path: /mnt/general
+    src: "UUID={{ usb_devices.general }}"
+    fstype: ext4
+    state: mounted
