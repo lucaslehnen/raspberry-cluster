@@ -1,9 +1,9 @@
 local_network:
   cidr: 192.168.0.0/24
 k3s:
-  version: v1.26.0+k3s1
+  version: v1.26.1+k3s1
   server:
-    ip: 192.168.0.13
+    ip: 192.168.0.11
     args: "--node-name {{ hostname }} --write-kubeconfig-mode 644"
   agent:
     args: "--node-name {{ hostname }}"

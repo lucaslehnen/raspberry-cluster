@@ -15,15 +15,15 @@ Siga o **KISS:** Keep It Simple Stupid!
 
 ## Preparando o Ubuntu das Raspberrys
 
-Os passos abaixo foram utilizados no Ubuntu 22.04, na imagem específica para raspberry de 64 bits no site Oficial. 
+Os passos abaixo foram utilizados no Ubuntu 22.04, na imagem específica para raspberry de 64 bits no site Oficial.
 
-Baixei a imagem e usei o Raspeberry Pi Imager para gravar a imagem baixada no MicroSD. 
+Baixei a imagem e usei o Raspeberry Pi Imager para gravar a imagem baixada no MicroSD.
 
 <details>
 <summary>Configurações após a gravação</summary>
 
-Como a imagem vem com o Cloud-init, deixei o IP configurado, de modo a facilitar o acesso, editando o arquivo `network-config`. 
-Coloquei o seguinte conteúdo: 
+Como a imagem vem com o Cloud-init, deixei o IP configurado, de modo a facilitar o acesso, editando o arquivo `network-config`.
+Coloquei o seguinte conteúdo:
 
 ```yaml
 version: 2
@@ -57,7 +57,7 @@ Para gerar um novo par de chaves:
 ssh-keygen -C "raspberrys" -f ~/.ssh/raspberrys -t rsa -b 4096 -q -N ""
 ```
 
-A seguir, vamos configurar para que o ssh encontre estas identidades facilmente, editando o arquivo ~/.ssh/config: 
+A seguir, vamos configurar para que o ssh encontre estas identidades facilmente, editando o arquivo ~/.ssh/config:
 
 ```
 IdentityFile ~/.ssh/id_rsa
@@ -78,13 +78,10 @@ ssh-copy-id -i ~/.ssh/raspberrys.pub ubuntu@192.168.0.21
 
 ## Overview
 
-Visão geral dos recursos: 
+Visão geral dos recursos:
 
 - 3 Raspberrys
   - k3s-01: 4GB RAM, 32 GB MicroSD
-    - HDD 1 TB via USB: /dev/sda
-    - SSD 128 via USB: /dev/sdb 
-    - NFS Server
     - K3s Server
   - k3s-02 e k3s-03: 2GB RAM,32 GB MicroSD
     - K3s Agents
@@ -100,14 +97,20 @@ Visão geral dos recursos:
   cidr: 192.168.0.0/24    # CIDR da rede local
   k3s:
     version: v1.24.2+k3s1 # Versão do K3S
-    server: 
+    server:
       ip: 192.168.0.21    # Endereço da API do Kubernetes
-      args: ""            # Argumentos extra do servidor https://rancher.com/docs/k3s/latest/en/installation/install-options/server-config/      
+      args: ""            # Argumentos extra do servidor https://rancher.com/docs/k3s/latest/en/installation/install-options/server-config/
     agent:
-      args: ""            # Argumentos extra do agente https://rancher.com/docs/k3s/latest/en/installation/install-options/agent-config/  
+      args: ""            # Argumentos extra do agente https://rancher.com/docs/k3s/latest/en/installation/install-options/agent-config/
   ```
-- Configurar o ambiente virtual e instalar o Ansible:  
-  
+- Configurar o ambiente virtual e instalar o Ansible:
+
+** Talvez seja necessário instalar o venv caso esteja usando o Debian/Ubuntu diretamente ao invés do WSL:
+
+  ```shell
+  apt install python3.10-venv
+  ```
+
   Criar e ativar o ambiente virtual:
   ```shell
   cd setup
@@ -119,7 +122,7 @@ Visão geral dos recursos:
   Instalar o Ansible:
   ```shell
   pip install -r requirements.txt
-  ```    
+  ```
 
 - Para rodar o playbook Ansible:
 
