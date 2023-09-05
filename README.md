@@ -80,12 +80,13 @@ ssh-copy-id -i ~/.ssh/raspberrys.pub ubuntu@192.168.0.21
 
 Visão geral dos recursos:
 
-- 3 Raspberrys
-  - k3s-01: 4GB RAM, 32 GB MicroSD
-    - K3s Server
-  - k3s-02 e k3s-03: 2GB RAM,32 GB MicroSD
-    - K3s Agents
-- Ubuntu 22.04
+- 6 Raspberrys
+  - 1 x 4GB RAM, 32 GB MicroSD    
+  - 2 x 2GB RAM, 32 GB MicroSD
+  - 3 x 8GB RAM, 32 GB MicroSD
+- 1 Switch 8 portas POE+
+- 8 PoE Hat Waveshare
+- Ubuntu 22.04 LTS 64 bits
 
 ## Subindo o ambiente
 
@@ -131,5 +132,11 @@ Visão geral dos recursos:
   ansible-playbook -i hosts.yml main.yml --extra-vars "@./variables.yml"
   ```
 
+- Se quiser rodar em apenas uma maquina, basta passar o nome do host:
+
+  ```bash
+  cd setup
+  ansible-playbook -i hosts.yml main.yml --extra-vars "@./variables.yml" --limit "192.168.0.16"
+  ```
 
 - Com isso o ambiente já deve ter sido configurado;
