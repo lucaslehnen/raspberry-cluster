@@ -13,14 +13,17 @@ Ainda posso utilizar o cluster para deixar alguns serviços em pé.
 
 Siga o **KISS:** Keep It Simple Stupid!
 
-## Preparando o Ubuntu das Raspberrys
+## Preparando o sistema operacional das Raspberrys
 
-Os passos abaixo foram utilizados no Ubuntu 22.04, na imagem específica para raspberry de 64 bits no site Oficial.
+Playbook testado com:
+ - Ubuntu 22.04 LTS 64 bits
+ - Raspberry OS 64 bits
 
-Baixei a imagem e usei o Raspeberry Pi Imager para gravar a imagem baixada no MicroSD.
+Usei o Raspeberry Pi Imager para gravar a imagem baixada no MicroSD.
+Quando usei o Raspberry Pi OS, configurei opções avançadas para já definir usuário (`pi`) e senha, bem como o host (`raspberrypi.local`).
 
 <details>
-<summary>Configurações após a gravação</summary>
+<summary>Configurações após a gravação para o Ubuntu 22.04 LTS</summary>
 
 Como a imagem vem com o Cloud-init, deixei o IP configurado, de modo a facilitar o acesso, editando o arquivo `network-config`.
 Coloquei o seguinte conteúdo:
@@ -38,10 +41,44 @@ ethernets:
       addresses: [192.168.0.1]
 ```
 
+Após isso, é necessário alterar a senha do usuário padrão `ubuntu`, conectando via SSH.
+
 </details>
 
 <details>
-<summary>Configurações de SSH nas Raspberrys</summary>
+<summary>Configurações após a gravação para o Raspberry Pi OS</summary>
+
+Diferente do Ubuntu, não encontrei uma forma de definir o IP estático antes, portanto primeiro preciso localizar o IP que o DHCP irá atribuir assim que ligar: 
+
+```shell
+PING raspberrypi.local (192.168.0.114) 56(84) bytes of data.
+64 bytes from 192.168.0.114 (192.168.0.114): icmp_seq=1 ttl=63 time=1.33 ms
+64 bytes from 192.168.0.114 (192.168.0.114): icmp_seq=2 ttl=63 time=1.00 ms
+```
+
+Aqui no ambiente funcionou o ping devido o suporte do roteador e ao fato de eu ter configurado o hostname na instalação do Raspberry OS.
+Mas há outras alternativas para localizar o IP, como o nmap:
+
+```shell
+nmap -sn 192.168.0.0/24
+```	
+Ele roda um comando ping em todos os IPs da rede e retorna os que responderam, permitindo identificarmos o host que queremos.
+
+Com o IP em mãos, podemos acessar a máquina via SSH e alterar o ip para estático, editando o arquivo `/etc/dhcpcd.conf`:
+
+```ini
+interface eth0
+static ip_address=192.168.0.21/24
+static routers=192.168.0.1
+static domain_name_servers=192.168.0.1
+```
+
+Reiniciar a raspberry para garantir. Após isso, podemos acessar via SSH novamente agora já com o IP estático.
+
+</details>
+
+<details>
+<summary>Configurações de SSH nas Raspberrys </summary>
 
 ### Configurações de SSH nas Raspberrys
 
@@ -64,11 +101,7 @@ IdentityFile ~/.ssh/id_rsa
 IdentityFile ~/.ssh/raspberrys
 ```
 
-Acessar a Raspberry para trocar a senha do usuário padrão `ubuntu`.
-
-```shell
-ssh ubuntu@192.168.0.21
-```
+E em seguida copiar a chave pública para o servidor:
 
 ```shell
 ssh-copy-id -i ~/.ssh/raspberrys.pub ubuntu@192.168.0.21
