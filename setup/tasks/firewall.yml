@@ -1,38 +1,45 @@
 ---
+- name: Install ufw on Debian
+  apt:
+    name: ufw
+    update_cache: true
+    state: present
+  when: ansible_distribution == 'Debian'
+
 - name: Deny everything and enable UFW
   community.general.ufw:
     state: enabled
     policy: deny
 
 - name: SSH Access
-  community.general.ufw:    
+  community.general.ufw:
     rule: limit
     port: ssh
     proto: tcp
     src: "{{ local_network.cidr }}"
 
 ### ----------------------------------------------------
-### K3s 
+### K3s
 ### ----------------------------------------------------
 
 - name: Kubernetes API Server port
-  community.general.ufw:    
+  community.general.ufw:
     rule: allow
-    port: '6443'
+    port: "6443"
     proto: tcp
     src: "{{ local_network.cidr }}"
     comment: "k8s api"
 
 - name: Flannel VXLAN
-  community.general.ufw:    
+  community.general.ufw:
     rule: allow
-    port: '8472'
+    port: "8472"
     proto: udp
     src: "{{ local_network.cidr }}"
     comment: "vxlan flannel"
 
 - name: Flannel Wireguard backend
-  community.general.ufw:    
+  community.general.ufw:
     rule: allow
     port: 51820:51821
     proto: udp
@@ -40,7 +47,7 @@
     comment: "flannel wireguard"
 
 - name: Kubelet metrics
-  community.general.ufw:    
+  community.general.ufw:
     rule: allow
     port: 10250
     proto: tcp
@@ -48,7 +55,7 @@
     comment: "kubelet metrics"
 
 - name: HA etcd
-  community.general.ufw:    
+  community.general.ufw:
     rule: allow
     port: 2379:2380
     proto: tcp
@@ -59,7 +66,7 @@
 ### Apps
 ### ----------------------------------------------------
 - name: HTTP
-  community.general.ufw:    
+  community.general.ufw:
     rule: allow
     port: 80
     proto: tcp
@@ -67,7 +74,7 @@
     comment: "http"
 
 - name: HTTPS
-  community.general.ufw:    
+  community.general.ufw:
     rule: allow
     port: 443
     proto: tcp
@@ -75,7 +82,7 @@
     comment: "Https"
 
 - name: PostgreSQL
-  community.general.ufw:    
+  community.general.ufw:
     rule: allow
     port: 5432
     proto: tcp

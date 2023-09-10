@@ -3,14 +3,15 @@
   stat:
     path: /etc/cloud/cloud.cfg.d/90_dpkg.cfg
   register: stats
+  when: ansible_distribution == 'Ubuntu'
 
 - name: Disable all services in cloud-init
   copy:
     dest: /etc/cloud/cloud.cfg.d/90_dpkg.cfg
-    content: 'datasource_list: [ None ]'
+    content: "datasource_list: [ None ]"
     mode: 0644
   register: datasource
-  when: stats.stat.exists
+  when: ansible_distribution == 'Ubuntu' and stats.stat.exists
   notify: dpkg_reconfigure
 
 - name: Running handlers
@@ -22,6 +23,7 @@
     state: absent
     name: cloud-init
   notify: os_reboot
+  when: ansible_distribution == 'Ubuntu'
 
 - name: Delete folders
   file:
@@ -31,3 +33,4 @@
     - "/etc/cloud/"
     - "/var/lib/cloud/"
   notify: os_reboot
+  when: ansible_distribution == 'Ubuntu'

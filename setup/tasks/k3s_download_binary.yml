@@ -6,4 +6,18 @@
     dest: /usr/local/bin/k3s
     owner: root
     group: root
-    mode: 0755  
+    mode: 0755
+  register: binary_downloaded
+
+- block:
+    - name: Populate service facts
+      service_facts:
+
+    - name: Restart service k3s if binary was downloaded
+      service:
+        name: k3s
+        state: restarted
+        enabled: yes
+      when: "'k3s' in services"
+
+  when: binary_downloaded.changed == true
