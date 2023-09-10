@@ -129,6 +129,7 @@ Visão geral dos recursos:
   ```yaml
   local_network:
   cidr: 192.168.0.0/24    # CIDR da rede local
+  default_user: pi        # Usuário padrão do SO das raspberrys a ser utilizado pelo Ansible
   k3s:
     version: v1.24.2+k3s1 # Versão do K3S
     server:
@@ -173,3 +174,34 @@ Visão geral dos recursos:
   ```
 
 - Com isso o ambiente já deve ter sido configurado;
+
+## Conectando ao Kubernetes
+
+Na raspberry elencada como server, o playbook já configura a conexão do kubectl. Se quiser copiar o arquivo de configuração para conexão via usuário padrão: 
+
+```shell
+mkdir -p ~/.kube/config
+scp pi@192.168.0.11:/home/pi/.kube/config ~/.kube/config
+```
+
+## Enriquecendo o cluster
+
+Algumas ferramentas configuradas no cluster:
+
+### Observabilidade
+
+Como eu uso o Lens (https://k8slens.dev/), acabo configurando o monitoramento por lá mesmo, nas configurações do cluster eu mando instalar o Prometheus, o Kube State Metrics e o Node Exporter.
+
+TODO: Montar um playbook para instalar o Prometheus, Grafana e Loki.
+
+### Storage
+
+O K3s já traz um Local Path Provisioner, que é um provisionador de volumes locais. Ele cria um storage class chamado `local-path` que pode ser usado para criar volumes persistentes.	
+
+TODO: Montar um playbook para instalar o Longhorn.  (https://longhorn.io/docs/1.2.2/deploy/install/install-with-helm/)  
+
+### Ingress
+
+Para o ingress, vou usar o Traefik (https://doc.traefik.io/traefik/), que é um proxy reverso e load balancer. No caso ele já vem com o K3S: https://rancher.com/docs/k3s/latest/en/installation/install-options/server-config/#traefik
+
+TODO: Configurar certificados do Traefik

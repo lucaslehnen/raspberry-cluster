@@ -40,30 +40,30 @@
 - name: set permission to other users read config server
   file:
     path: /etc/rancher/k3s/k3s.yaml
-    mode: '0644'
+    mode: "0644"
 
 - name: Configure kubeconfig
-  block:       
+  block:
     - name: Copy config file to user home directory
       copy:
         src: ~{{ ansible_user }}/.kube/ansible
         dest: ~{{ ansible_user }}/.kube/config
         remote_src: true
         owner: "{{ ansible_user }}"
-        mode: "u=r,g=,o="  
+        mode: "u=r,g=,o="
 
     - name: Copy config file to root directory
       copy:
         src: ~{{ ansible_user }}/.kube/ansible
         dest: /root/.kube/config
         remote_src: true
-        mode: "u=r,g=,o="  
+        mode: "u=r,g=,o="
 
     - name: Replace https://localhost:6443 by https://server-ip:6443
       replace:
         path: ~{{ ansible_user }}/.kube/config
         regexp: "127.0.0.1"
-        replace: "{{ k3s.server.ip }}"          
+        replace: "{{ k3s.server.ip }}"
   when: k3s_config.changed == true
 
 - name: Create kubectl symlink
