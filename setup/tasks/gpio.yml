@@ -1,0 +1,35 @@
+---
+# Install requirements for controller script for FAN and LED display
+#     Source: https://www.waveshare.com/wiki/PoE_HAT_(B)
+
+# Enable I2C Interface
+- name: Enable I2C Interface
+  lineinfile:
+    path: /boot/config.txt
+    regexp: "^#?(dtparam=i2c_arm=on)$"
+    line: '\1'
+    state: present
+  notify: os_reboot
+  when: ansible_distribution == 'Debian'
+
+# Install requirements for controller script for FAN and LED display
+- name: Install pip e packages RPi.GPIO, python-smbus
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: true
+  with_items:
+    - python3-pip
+    - python3-smbus
+    - RPi.GPIO
+  when: ansible_distribution == 'Debian'
+
+# Copy controller script
+- name: Copy controller script
+  copy:
+    src: "files/poe-hat"
+    dest: "/usr/local/bin/{{ item }}"
+    owner: root
+    group: root
+    mode: 0755
+  when: ansible_distribution == 'Debian'
